@@ -160,6 +160,7 @@ export class GraphQLClient {
       fetch,
       method,
       fetchOptions,
+      contentTypeFallback
     })
 
     return data
@@ -197,6 +198,7 @@ async function makeRequest<T = any, V = Variables>({
   fetch,
   method = 'POST',
   fetchOptions,
+  contentTypeFallback
 }: {
   url: string
   query: string
@@ -218,7 +220,7 @@ async function makeRequest<T = any, V = Variables>({
     fetch,
     fetchOptions,
   })
-  const result = await getResult(response)
+  const result = await getResult(response, contentTypeFallback)
 
   if (response.ok && !result.errors && result.data) {
     const { headers, status } = response
@@ -294,13 +296,15 @@ export default request
 /**
  * todo
  */
-function getResult(response: Dom.Response): Promise<any> {
+function getResult(response: Dom.Response, contentTypeFallback: boolean): Promise<any> {
   const contentType = response.headers.get('Content-Type')
   if (contentType && contentType.startsWith('application/json')) {
     return response.json()
-  } else {
+  } else if (contentTypeFallback){
+      return response.json()
+    } else {
     return response.text()
-  }
+    }
 }
 
 /**
