@@ -294,6 +294,7 @@ export interface RequestInit {
   timeout?: number
   window?: any
   fetch?: any
+  contentTypeFallback?: boolean
 }
 
 interface Body {

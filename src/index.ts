@@ -117,7 +117,7 @@ export class GraphQLClient {
     variables?: V,
     requestHeaders?: Dom.RequestInit['headers']
   ): Promise<{ data: T; extensions?: any; headers: Dom.Headers; status: number }> {
-    let { headers, fetch = crossFetch, method = 'POST', ...fetchOptions } = this.options
+    let { headers, fetch = crossFetch, method = 'POST', contentTypeFallback, ...fetchOptions } = this.options
     let { url } = this
 
     return makeRequest<T, V>({
@@ -132,6 +132,7 @@ export class GraphQLClient {
       fetch,
       method,
       fetchOptions,
+      contentTypeFallback
     })
   }
 
@@ -143,7 +144,7 @@ export class GraphQLClient {
     variables?: V,
     requestHeaders?: Dom.RequestInit['headers']
   ): Promise<T> {
-    let { headers, fetch = crossFetch, method = 'POST', ...fetchOptions } = this.options
+    let { headers, fetch = crossFetch, method = 'POST', contentTypeFallback, ...fetchOptions } = this.options
     let { url } = this
 
     const { query, operationName } = resolveRequestDocument(document)
@@ -160,6 +161,7 @@ export class GraphQLClient {
       fetch,
       method,
       fetchOptions,
+      contentTypeFallback
     })
 
     return data
@@ -197,6 +199,7 @@ async function makeRequest<T = any, V = Variables>({
   fetch,
   method = 'POST',
   fetchOptions,
+  contentTypeFallback
 }: {
   url: string
   query: string
@@ -205,7 +208,8 @@ async function makeRequest<T = any, V = Variables>({
   operationName?: string
   fetch: any
   method: string
-  fetchOptions: Dom.RequestInit
+  fetchOptions: Dom.RequestInit,
+  contentTypeFallback?: boolean
 }): Promise<{ data: T; extensions?: any; headers: Dom.Headers; status: number }> {
   const fetcher = method.toUpperCase() === 'POST' ? post : get
 
@@ -218,7 +222,7 @@ async function makeRequest<T = any, V = Variables>({
     fetch,
     fetchOptions,
   })
-  const result = await getResult(response)
+  const result = await getResult(response, contentTypeFallback)
 
   if (response.ok && !result.errors && result.data) {
     const { headers, status } = response
@@ -294,13 +298,15 @@ export default request
 /**
  * todo
  */
-function getResult(response: Dom.Response): Promise<any> {
+function getResult(response: Dom.Response, contentTypeFallback?: boolean): Promise<any> {
   const contentType = response.headers.get('Content-Type')
   if (contentType && contentType.startsWith('application/json')) {
     return response.json()
-  } else {
+  } else if (contentTypeFallback){
+      return response.json()
+    } else {
     return response.text()
-  }
+    }
 }
 
 /**
