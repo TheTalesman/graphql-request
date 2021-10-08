@@ -1,5 +1,5 @@
 {
-  "name": "graphql-request",
+  "name": "graphql-request-thetalesman-pr",
   "version": "0.0.0-dripip",
   "main": "dist/index.js",
   "files": [
@@ -22,7 +22,7 @@
     "graphql-client",
     "apollo"
   ],
-  "author": "Prisma Labs Team",
+  "author": "Prisma Labs Team & TheTalesman",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/prisma/graphql-request/issues"

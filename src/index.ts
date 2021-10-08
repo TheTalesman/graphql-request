@@ -309,6 +309,7 @@ function getResult(response: Dom.Response, contentTypeFallback?: boolean): Promi
     }
 }
 
+
 /**
  * helpers
  */
